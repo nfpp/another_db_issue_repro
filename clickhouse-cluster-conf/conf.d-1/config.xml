@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<yandex>
+    <zookeeper>
+        <node index="1">
+            <host>repro_zookeeper_1</host>
+            <port>2181</port>
+        </node>
+    </zookeeper>
+    <macros>
+        <shard>1</shard>
+        <replica>clickhouse-cluster-1</replica>
+    </macros>
+    <remote_servers>
+        <analytics>
+            <shard>
+                <weight>1</weight>
+                <internal_replication>true</internal_replication>
+                <replica>
+                    <host>clickhouse-cluster-1</host>
+                    <port>9000</port>
+                </replica>
+                <replica>
+                    <host>clickhouse-cluster-2</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+            <shard>
+                <weight>1</weight>
+                <internal_replication>true</internal_replication>
+                <replica>
+                    <host>clickhouse-cluster-3</host>
+                    <port>9000</port>
+                </replica>
+                <replica>
+                    <host>clickhouse-cluster-4</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </analytics>
+    </remote_servers>
+</yandex>
