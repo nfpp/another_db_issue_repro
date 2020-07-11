@@ -8,25 +8,26 @@ clean() {
 }
 
 docker-compose -p repro up -d
+sleep 1
+
+docker exec -t "repro_clickhouse-cluster-1_1" clickhouse-client -q "CREATE DATABASE IF NOT EXISTS test ON CLUSTER analytics;"
 
 for i in {1..4}; do
-    docker exec -t "repro_clickhouse-cluster-${i}_1" clickhouse-client -q "$(cat create_table.sql)"
+    docker exec -t "repro_clickhouse-cluster-${i}_1" clickhouse-client -n -q "$(cat create_table.sql)"
 done
 sleep 1
 
 for i in {1..4..2}; do
-    docker exec -t "repro_clickhouse-cluster-${i}_1" clickhouse-client -q "$(cat fill_data.sql)" --insert_quorum 2
+    docker exec -t "repro_clickhouse-cluster-${i}_1" clickhouse-client -q "$(cat fill_data_foo_default.sql)"
+    docker exec -t "repro_clickhouse-cluster-${i}_1" clickhouse-client -q "$(cat fill_data_foo_test.sql)"
 done
-sleep 5
+docker exec -t "repro_clickhouse-cluster-${i}_1" clickhouse-client -q "$(cat fill_data_bar_default.sql)"
+docker exec -t "repro_clickhouse-cluster-${i}_1" clickhouse-client -q "$(cat fill_data_bar_test.sql)"
+sleep 4
 
-docker exec -t "repro_clickhouse-cluster-1_1" clickhouse-client -q "ALTER TABLE foo DELETE WHERE something = 'test1';"
-
-while true; do
-    COUNT=$(docker exec -t "repro_clickhouse-cluster-1_1" clickhouse-client -q "SELECT count() FROM system.mutations WHERE is_done = 0;")
-    if [[ $(echo -e "${COUNT}" | tr -d '[:space:]') != "0" ]]; then
-        echo "waiting for the mutation to finish"
-        sleep 1
-    else
-        break
-    fi
-done
+echo "default (from foo):"
+docker exec -t "repro_clickhouse-cluster-1_1" clickhouse-client -q "SELECT count(something_else) FROM bar WHERE something_else IN (SELECT something FROM foo);"
+echo "test (from foo):"
+docker exec -t "repro_clickhouse-cluster-1_1" clickhouse-client --database test -q "SELECT count(something_else) FROM bar WHERE something_else IN (SELECT something FROM foo);"
+echo "test (from test.foo):"
+docker exec -t "repro_clickhouse-cluster-1_1" clickhouse-client --database test -q "SELECT count(something_else) FROM bar WHERE something_else IN (SELECT something FROM test.foo);"

@@ -10,7 +10,7 @@ services:
       ZOO_STANDALONE_ENABLED: 'true'
 
   clickhouse-cluster-1:
-    image: yandex/clickhouse-server:19.13.5.44
+    image: yandex/clickhouse-server:20.3.10.75
     ulimits:
       nofile:
         soft: 262144
@@ -24,7 +24,7 @@ services:
       - zookeeper
 
   clickhouse-cluster-2:
-    image: yandex/clickhouse-server:19.13.5.44
+    image: yandex/clickhouse-server:20.3.10.75
     ulimits:
       nofile:
         soft: 262144
@@ -38,7 +38,7 @@ services:
       - zookeeper
 
   clickhouse-cluster-3:
-    image: yandex/clickhouse-server:19.13.5.44
+    image: yandex/clickhouse-server:20.3.10.75
     ulimits:
       nofile:
         soft: 262144
@@ -52,7 +52,7 @@ services:
       - zookeeper
 
   clickhouse-cluster-4:
-    image: yandex/clickhouse-server:19.13.5.44
+    image: yandex/clickhouse-server:20.3.10.75
     ulimits:
       nofile:
         soft: 262144
